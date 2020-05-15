@@ -14,6 +14,8 @@
 # UPSTREAM_URL          : Upstream repository URL
 # SSH_PRIVATE_KEY_FILE  : Path to SSH private key with push access
 
+set -e
+
 # SSH variables
 KNOWN_HOSTS_FILE=${KNOWN_HOSTS_FILE:-'./known_hosts'}
 SSH_PRIVATE_KEY_FILE=${SSH_PRIVATE_KEY_FILE:-}
