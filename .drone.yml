@@ -32,6 +32,7 @@ node_selector:
   kubernetes.io/arch: arm
 trigger:
   ref:
+  - refs/heads/master
   - refs/tags/*
 
 ---
