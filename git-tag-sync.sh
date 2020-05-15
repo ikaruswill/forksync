@@ -24,6 +24,38 @@ git clone $REPO $REPO_PATH
 cd $REPO_PATH
 git remote add upstream $UPSTREAM
 
+echo "Checking origin URL..."
+
+REPO_URL=`git remote -v | grep -m1 '^origin' | sed -Ene's#.*(https://[^[:space:]]*).*#\1#p'`
+if [ -z "$REPO_URL" ]; then
+    echo "Repo origin is using SSH"
+else
+    echo "Repo origin is using HTTPS, converting to SSH..."
+    USER=`echo $REPO_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\1#p'`
+    if [ -z "$USER" ]; then
+        echo "-- ERROR:  Could not identify User."
+        exit
+    fi
+
+    REPO=`echo $REPO_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\2#p'`
+    if [ -z "$REPO" ]; then
+        echo "-- ERROR:  Could not identify Repo."
+        exit
+    fi
+
+    NEW_URL="git@github.com:$USER/$REPO.git"
+    echo "Changing repo url from "
+    echo "  '$REPO_URL'"
+    echo "      to "
+    echo "  '$NEW_URL'"
+    echo ""
+
+    CHANGE_CMD="git remote set-url origin $NEW_URL"
+    `$CHANGE_CMD`
+
+    echo "Repo origin converted to SSH"
+fi
+
 echo "Fetching tags..."
 TAGS=($(git fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p' | tr '\n' '\0'))
 
