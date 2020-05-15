@@ -29,16 +29,16 @@ REPO_ROOT='/repos'
 # Check environment variables
 if [ -z "$REPO_URL" ]; then
     echo 'Missing REPO_URL'
-    exit
+    exit 1
 elif [ -z "$UPSTREAM_URL" ]; then
     echo 'Missing UPSTREAM_URL'
-    exit
+    exit 1
 elif [ -z $SSH_PRIVATE_KEY_FILE ]; then
     echo 'Missing SSH_PRIVATE_KEY_FILE'
-    exit
+    exit 1
 elif ! [ -f "$SSH_PRIVATE_KEY_FILE" ]; then
     echo "SSH key not found at: $SSH_PRIVATE_KEY_FILE"
-    exit
+    exit 1
 elif ! [ -f "$KNOWN_HOSTS_FILE" ]; then
     echo "known_hosts not found at: $KNOWN_HOSTS_FILE"
     echo "Using default known_hosts..."
@@ -60,13 +60,13 @@ check_repo_url () {
         local USER=$(echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\1#p')
         if [ -z "$USER" ]; then
             echo "-- ERROR:  Could not identify User."
-            exit
+            exit 1
         fi
 
         local REPO=$(echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\2#p')
         if [ -z "$REPO" ]; then
             echo "-- ERROR:  Could not identify Repo."
-            exit
+            exit 1
         fi
 
         local NEW_URL="git@github.com:$USER/$REPO.git"
