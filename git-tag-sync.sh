@@ -14,12 +14,12 @@ mkdir -p $SSH_PATH
 cp $KNOWN_HOSTS_FILE $SSH_PATH
 cp $SSH_PRIVATE_KEY_FILE $SSH_PATH
 
-REPO='https://github.com/ikaruswill/gitea.git'
+REPO_URL='https://github.com/ikaruswill/gitea.git'
 UPSTREAM='https://github.com/go-gitea/gitea.git'
 REPO_PATH='/repo'
 
 echo "Checking repo URL..."
-REPO_HTTPS_URL=`echo $REPO | sed -Ene's#.*(https://[^[:space:]]*).*#\1#p'`
+REPO_HTTPS_URL=`echo $REPO_URL | sed -Ene's#.*(https://[^[:space:]]*).*#\1#p'`
 if [ -z "$REPO_HTTPS_URL" ]; then
     echo "Repo URL is using SSH"
 else
@@ -43,12 +43,12 @@ else
     echo "  '$NEW_URL'"
     echo ""
 
-    REPO=$NEW_URL
+    REPO_URL=$NEW_URL
 fi
 
 echo "Cloning repository..."
 mkdir -p $REPO_PATH
-git clone $REPO $REPO_PATH
+git clone $REPO_URL $REPO_PATH
 cd $REPO_PATH
 git remote add upstream $UPSTREAM
 
