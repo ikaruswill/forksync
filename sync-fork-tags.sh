@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
 
-# Required:
-# WORKDIR
-# REPO
-# UPSTREAM
-# SSH_KEY
+######################################################################################
+##                                 sync-fork-tags                                   ##
+######################################################################################
+# A simple bash script to pull upstream tags of a fork and then push them to origin.
+# - To be used in a cron job (e.g. K8s CronJob) to triggering CICD pipelines in forked
+#   repositories that build on 'tag' events.
+# - For people who build their own versions of forked repositories yet want to remain
+#   as close as possible to upstream.
+
+# Environment variables
+# REPO_URL              : Forked repository URL
+# UPSTREAM_URL          : Upstream repository URL
+# SSH_PRIVATE_KEY_FILE  : Path to SSH private key with push access
 
 # SSH variables
 KNOWN_HOSTS_FILE=${KNOWN_HOSTS_FILE:-'./known_hosts'}
