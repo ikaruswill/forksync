@@ -20,8 +20,8 @@ REPO_PATH='/repo'
 
 echo "Cloning repository..."
 mkdir -p $REPO_PATH
+git clone $REPO $REPO_PATH
 cd $REPO_PATH
-git clone --depth 1 $REPO .
 git remote add upstream $UPSTREAM
 
 echo "Fetching tags..."
