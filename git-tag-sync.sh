@@ -57,7 +57,7 @@ else
 fi
 
 echo "Fetching tags..."
-TAGS=($(git fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p' | tr '\n' '\0'))
+TAGS=$(git fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
 
 for tag in $TAGS; do
     echo "Pushing $tag..."
