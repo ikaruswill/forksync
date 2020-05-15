@@ -15,8 +15,8 @@ cp $KNOWN_HOSTS_FILE $SSH_PATH
 cp $SSH_PRIVATE_KEY_FILE $SSH_PATH
 
 REPO_URL='https://github.com/ikaruswill/gitea.git'
-REPO_PATH='/repo'
 UPSTREAM_URL='https://github.com/go-gitea/gitea.git'
+REPO_ROOT='/repos'
 
 echo "Checking repo URL..."
 REPO_HTTPS_URL=`echo $REPO_URL | sed -Ene's#.*(https://[^[:space:]]*).*#\1#p'`
@@ -46,11 +46,21 @@ else
     REPO_URL=$NEW_URL
 fi
 
-echo "Cloning repository..."
-mkdir -p $REPO_PATH
-git clone $REPO_URL $REPO_PATH
-cd $REPO_PATH
-git remote add upstream $UPSTREAM_URL
+REPO=$(echo $REPO_URL | sed -n 's/^.*\/\(.*\)\.git$/\1/p')
+REPO_PATH=$REPO_ROOT/$REPO
+
+if [ -d $REPO_PATH ]; then
+    echo "Local repo exists"
+    echo "Pulling repository..."
+    cd $REPO_PATH
+    git pull origin
+else 
+    echo "Local repo not cloned yet"
+    echo "Cloning repository..."
+    git clone $REPO_URL $REPO_PATH
+    cd $REPO_PATH
+    git remote add upstream $UPSTREAM_URL
+fi
 
 echo "Fetching tags..."
 TAGS=$(git fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
