@@ -60,7 +60,6 @@ pull_or_clone_repo () {
         echo "Local repo not cloned yet"
         echo "Cloning repository..."
         git clone $REPO_URL $REPO_PATH
-        git -C $REPO_PATH remote add upstream $UPSTREAM_URL
     fi
 }
 
@@ -86,6 +85,7 @@ echo "Pull or clone repository..."
 REPO=$(echo $REPO_URL | sed -n 's/^.*\/\(.*\)\.git$/\1/p')
 REPO_PATH=$REPO_ROOT/$REPO
 pull_or_clone_repo
+git -C $REPO_PATH remote add upstream $UPSTREAM_URL
 
 echo "Fetching tags..."
 TAGS=$(git fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
