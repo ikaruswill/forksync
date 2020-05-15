@@ -26,10 +26,10 @@ elif [ -z "$UPSTREAM_URL" ]; then
 elif [ -z $SSH_PRIVATE_KEY_FILE ]; then
     echo 'Missing SSH_PRIVATE_KEY_FILE'
     exit
-elif [ -f "$SSH_PRIVATE_KEY_FILE" ]; then
+elif ![ -f "$SSH_PRIVATE_KEY_FILE" ]; then
     echo "SSH key not found at: $SSH_PRIVATE_KEY_FILE"
     exit
-elif [ -f "$KNOWN_HOSTS_FILE" ]; then
+elif ![ -f "$KNOWN_HOSTS_FILE" ]; then
     echo "known_hosts not found at: $KNOWN_HOSTS_FILE"
     echo "Using default known_hosts..."
     KNOWN_HOSTS_FILE='./known_hosts'
