@@ -7,14 +7,33 @@
 # SSH_KEY
 
 # SSH variables
-KNOWN_HOSTS_FILE='./known_hosts'
-SSH_PRIVATE_KEY_FILE='./id_rsa'
+KNOWN_HOSTS_FILE=${KNOWN_HOSTS_FILE:-'./known_hosts'}
+SSH_PRIVATE_KEY_FILE=${SSH_PRIVATE_KEY_FILE:-}
 SSH_PATH=$HOME/.ssh/
 
 # Repository variables
-REPO_URL='https://github.com/ikaruswill/gitea.git'
-UPSTREAM_URL='https://github.com/go-gitea/gitea.git'
+REPO_URL=${REPO_URL:-}
+UPSTREAM_URL=${UPSTREAM_URL:-}
 REPO_ROOT='/repos'
+
+# Check environment variables
+if [ -z "$REPO_URL" ]; then
+    echo 'Missing REPO_URL'
+    exit
+elif [ -z "$UPSTREAM_URL" ]; then
+    echo 'Missing UPSTREAM_URL'
+    exit
+elif [ -z $SSH_PRIVATE_KEY_FILE ]; then
+    echo 'Missing SSH_PRIVATE_KEY_FILE'
+    exit
+elif [ -f "$SSH_PRIVATE_KEY_FILE" ]; then
+    echo "SSH key not found at: $SSH_PRIVATE_KEY_FILE"
+    exit
+elif [ -f "$KNOWN_HOSTS_FILE" ]; then
+    echo "known_hosts not found at: $KNOWN_HOSTS_FILE"
+    echo "Using default known_hosts..."
+    KNOWN_HOSTS_FILE='./known_hosts'
+fi
 
 configure_ssh () {
     mkdir -p $SSH_PATH
