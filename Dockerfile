@@ -4,4 +4,4 @@ WORKDIR /app
 VOLUME /repos
 
 ADD . /app
-ENTRYPOINT [ "sync-fork-tags.sh" ]
+ENTRYPOINT [ "./sync-fork-tags.sh" ]
