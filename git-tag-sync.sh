@@ -18,26 +18,19 @@ REPO='https://github.com/ikaruswill/gitea.git'
 UPSTREAM='https://github.com/go-gitea/gitea.git'
 REPO_PATH='/repo'
 
-echo "Cloning repository..."
-mkdir -p $REPO_PATH
-git clone $REPO $REPO_PATH
-cd $REPO_PATH
-git remote add upstream $UPSTREAM
-
-echo "Checking origin URL..."
-
-REPO_URL=`git remote -v | grep -m1 '^origin' | sed -Ene's#.*(https://[^[:space:]]*).*#\1#p'`
-if [ -z "$REPO_URL" ]; then
-    echo "Repo origin is using SSH"
+echo "Checking repo URL..."
+REPO_HTTPS_URL=`echo $REPO | sed -Ene's#.*(https://[^[:space:]]*).*#\1#p'`
+if [ -z "$REPO_HTTPS_URL" ]; then
+    echo "Repo URL is using SSH"
 else
-    echo "Repo origin is using HTTPS, converting to SSH..."
-    USER=`echo $REPO_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\1#p'`
+    echo "Repo URL is using HTTPS, converting to SSH..."
+    USER=`echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\1#p'`
     if [ -z "$USER" ]; then
         echo "-- ERROR:  Could not identify User."
         exit
     fi
 
-    REPO=`echo $REPO_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\2#p'`
+    REPO=`echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\2#p'`
     if [ -z "$REPO" ]; then
         echo "-- ERROR:  Could not identify Repo."
         exit
@@ -45,16 +38,19 @@ else
 
     NEW_URL="git@github.com:$USER/$REPO.git"
     echo "Changing repo url from "
-    echo "  '$REPO_URL'"
+    echo "  '$REPO_HTTPS_URL'"
     echo "      to "
     echo "  '$NEW_URL'"
     echo ""
 
-    CHANGE_CMD="git remote set-url origin $NEW_URL"
-    `$CHANGE_CMD`
-
-    echo "Repo origin converted to SSH"
+    REPO=$NEW_URL
 fi
+
+echo "Cloning repository..."
+mkdir -p $REPO_PATH
+git clone $REPO $REPO_PATH
+cd $REPO_PATH
+git remote add upstream $UPSTREAM
 
 echo "Fetching tags..."
 TAGS=$(git fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
