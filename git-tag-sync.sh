@@ -23,24 +23,24 @@ configure_ssh () {
 }
 
 check_repo_url () {
-    REPO_HTTPS_URL=$(echo $REPO_URL | sed -Ene's#.*(https://[^[:space:]]*).*#\1#p')
+    local REPO_HTTPS_URL=$(echo $REPO_URL | sed -Ene's#.*(https://[^[:space:]]*).*#\1#p')
     if [ -z "$REPO_HTTPS_URL" ]; then
         echo "Repo URL is using SSH"
     else
         echo "Repo URL is using HTTPS, converting to SSH..."
-        USER=$(echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\1#p')
+        local USER=$(echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\1#p')
         if [ -z "$USER" ]; then
             echo "-- ERROR:  Could not identify User."
             exit
         fi
 
-        REPO=$(echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\2#p')
+        local REPO=$(echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\2#p')
         if [ -z "$REPO" ]; then
             echo "-- ERROR:  Could not identify Repo."
             exit
         fi
 
-        NEW_URL="git@github.com:$USER/$REPO.git"
+        local NEW_URL="git@github.com:$USER/$REPO.git"
         echo "Changing repo url from "
         echo "  '$REPO_HTTPS_URL'"
         echo "      to "
