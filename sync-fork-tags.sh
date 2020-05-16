@@ -119,7 +119,7 @@ REPO_PATH=$REPO_ROOT/$REPO
 pull_or_clone_repo
 
 echo "Fetching tags..."
-TAGS=$(git fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
+TAGS=$(git -C $REPO_PATH fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
 
 push_tags
 
