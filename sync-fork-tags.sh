@@ -19,7 +19,7 @@ set -e
 # SSH variables
 KNOWN_HOSTS_FILE=${KNOWN_HOSTS_FILE:-'./known_hosts'}
 SSH_PRIVATE_KEY_FILE=${SSH_PRIVATE_KEY_FILE:-}
-SSH_PATH=$HOME/.ssh/
+SSH_PATH="$HOME/.ssh"
 
 # Repository variables
 REPO_URL=${REPO_URL:-}
@@ -47,8 +47,9 @@ fi
 
 configure_ssh () {
     mkdir -p $SSH_PATH
-    cp $KNOWN_HOSTS_FILE $SSH_PATH
-    cp $SSH_PRIVATE_KEY_FILE $SSH_PATH
+    cp $KNOWN_HOSTS_FILE $SSH_PATH/
+    cp $SSH_PRIVATE_KEY_FILE $SSH_PATH/id_rsa
+    chmod 600 $SSH_PATH/id_rsa
 }
 
 check_repo_url () {
