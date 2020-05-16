@@ -57,7 +57,7 @@ check_repo_url () {
     if [ -z "$REPO_HTTPS_URL" ]; then
         echo "Repo URL is using SSH"
     else
-        echo "Repo URL is using HTTPS, converting to SSH..."
+        echo "WARNING: Repo URL is using HTTPS, attemping conversion to SSH..."
         local USER=$(echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\1#p')
         if [ -z "$USER" ]; then
             echo "-- ERROR:  Could not identify User."
