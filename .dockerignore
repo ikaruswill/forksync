@@ -2,3 +2,4 @@
 .gitignore
 .drone.yml
 manifest.tmpl
+Dockerfile
