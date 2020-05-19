@@ -44,6 +44,8 @@ elif ! [ -f "$KNOWN_HOSTS_FILE" ]; then
     echo "Using default known_hosts..."
     KNOWN_HOSTS_FILE='./known_hosts'
 fi
+[[ $REPO_URL == *.git ]] || REPO_URL+=.git
+[[ $UPSTREAM_URL == *.git ]] || UPSTREAM_URL+=.git
 
 configure_ssh () {
     mkdir -p $SSH_PATH
