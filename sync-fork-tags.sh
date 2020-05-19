@@ -47,26 +47,26 @@ fi
 [[ $REPO_URL == *.git ]] || REPO_URL+=.git
 [[ $UPSTREAM_URL == *.git ]] || UPSTREAM_URL+=.git
 
-configure_ssh () {
+configure_ssh() {
     mkdir -p $SSH_PATH
     cp $KNOWN_HOSTS_FILE $SSH_PATH/
     cp $SSH_PRIVATE_KEY_FILE $SSH_PATH/id_rsa
     chmod 600 $SSH_PATH/id_rsa
 }
 
-check_repo_url () {
-    local REPO_HTTPS_URL=$(echo $REPO_URL | sed -Ene's#.*(https://[^[:space:]]*).*#\1#p')
+check_repo_url() {
+    local REPO_HTTPS_URL=$(echo $REPO_URL | sed -En 's#.*(https://[^[:space:]]*).*#\1#p')
     if [ -z "$REPO_HTTPS_URL" ]; then
         echo "Repo URL is using SSH"
     else
         echo "WARNING: Repo URL is using HTTPS, attemping conversion to SSH..."
-        local USER=$(echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\1#p')
+        local USER=$(echo $REPO_HTTPS_URL | sed -En 's#https://github.com/([^/]*)/(.*).git#\1#p')
         if [ -z "$USER" ]; then
             echo "-- ERROR:  Could not identify User."
             exit 1
         fi
 
-        local REPO=$(echo $REPO_HTTPS_URL | sed -Ene's#https://github.com/([^/]*)/(.*).git#\2#p')
+        local REPO=$(echo $REPO_HTTPS_URL | sed -En 's#https://github.com/([^/]*)/(.*).git#\2#p')
         if [ -z "$REPO" ]; then
             echo "-- ERROR:  Could not identify Repo."
             exit 1
@@ -83,7 +83,7 @@ check_repo_url () {
     fi
 }
 
-pull_or_clone_repo () {
+pull_or_clone_repo() {
     if [ -d $REPO_PATH ]; then
         echo "Local repo exists"
         echo "Pulling repository..."
@@ -97,7 +97,7 @@ pull_or_clone_repo () {
     fi
 }
 
-push_tags () {
+push_tags() {
     if [ -z "$TAGS" ]; then
         echo "Origin up-to-date with upstream"
     else 
