@@ -83,11 +83,11 @@ check_repo_url() {
     fi
 }
 
-pull_or_clone_repo() {
+fetch_tags_or_clone_repo() {
     if [ -d $REPO_PATH ]; then
         echo "Local repo exists"
-        echo "Pulling repository..."
-        git -C $REPO_PATH pull origin
+        echo "Fetching repository tags..."
+        git -C $REPO_PATH fetch --tags
     else 
         echo "Local repo not cloned yet"
         echo "Cloning repository..."
@@ -115,10 +115,10 @@ configure_ssh
 echo "Checking repo URL..."
 check_repo_url
 
-echo "Pull or clone repository..."
+echo "Fetch tags or clone repository..."
 REPO=$(echo $REPO_URL | sed -n 's/^.*\/\(.*\)\.git$/\1/p')
 REPO_PATH=$REPO_ROOT/$REPO
-pull_or_clone_repo
+fetch_tags_or_clone_repo
 
 echo "Fetching tags..."
 TAGS=$(git -C $REPO_PATH fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
