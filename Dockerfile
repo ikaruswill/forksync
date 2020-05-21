@@ -1,5 +1,5 @@
-FROM ikaruswill/git
-RUN apk --no-cache add bash
+FROM alpine:3.9
+RUN apk --no-cache add git openssh bash
 WORKDIR /app
 VOLUME /repos
 
