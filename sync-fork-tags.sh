@@ -87,7 +87,7 @@ fetch_tags_or_clone_repo() {
     if [ -d $REPO_PATH ]; then
         echo "Local repo exists"
         echo "Fetching repository tags..."
-        git -C $REPO_PATH fetch --tags
+        git -C $REPO_PATH fetch --tags --prune --prune-tags
     else 
         echo "Local repo not cloned yet"
         echo "Cloning repository..."
