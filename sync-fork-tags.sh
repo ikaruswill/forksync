@@ -44,24 +44,24 @@ function __log_info() {
 
 # Check environment variables
 if [ -z "${REPO_URL}" ]; then
-    echo 'Missing REPO_URL'
+    __log_error 'Missing REPO_URL'
     exit 1
 elif [ -z "${UPSTREAM_URL}" ]; then
-    echo 'Missing UPSTREAM_URL'
+    __log_error 'Missing UPSTREAM_URL'
     exit 1
-elif [ -z ${SSH_PRIVATE_KEY_FILE} ]; then
-    echo 'Missing SSH_PRIVATE_KEY_FILE'
+elif [ -z "${SSH_PRIVATE_KEY_FILE}" ]; then
+    __log_error 'Missing SSH_PRIVATE_KEY_FILE'
     exit 1
 elif ! [ -f "${SSH_PRIVATE_KEY_FILE}" ]; then
-    echo "SSH key not found at: ${SSH_PRIVATE_KEY_FILE}"
+    __log_error "SSH key not found at: ${SSH_PRIVATE_KEY_FILE}"
     exit 1
 elif ! [ -f "${KNOWN_HOSTS_FILE}" ]; then
-    echo "known_hosts not found at: ${KNOWN_HOSTS_FILE}"
-    echo "Using default known_hosts..."
+    __log_warning "known_hosts not found at: ${KNOWN_HOSTS_FILE}"
+    __log_warning "Using default known_hosts..."
     KNOWN_HOSTS_FILE='./known_hosts'
 fi
-[[ ${REPO_URL} == *.git ]] || REPO_URL+=.git
-[[ ${UPSTREAM_URL} == *.git ]] || UPSTREAM_URL+=.git
+[[ "${REPO_URL}" == *.git ]] || REPO_URL+=.git
+[[ "${UPSTREAM_URL}" == *.git ]] || UPSTREAM_URL+=.git
 
 configure_ssh() {
     mkdir -p ${SSH_PATH}
