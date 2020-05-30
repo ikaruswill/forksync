@@ -32,7 +32,7 @@ REPO_PATH="${REPO_ROOT}/${REPO}"
 alias git="git -C ${REPO_PATH}"
 
 # Logging
-LOG_LEVEL=${LOG_LEVEL:-'ERROR'}
+LOG_LEVEL=${LOG_LEVEL:-'INFO'}
 
 exec 3>&1
 function __log_error() {
@@ -105,14 +105,14 @@ check_repo_url() {
 
 fetch_or_clone_repo() {
     if [ -d "${REPO_PATH}" ]; then
-        echo "Local repo exists"
-        echo "Fetching repository tags..."
+        __log_info "Local repo exists"
+        __log_info "Fetching repository tags..."
         git fetch --tags --prune --prune-tags
     else 
-        echo "Local repo not cloned yet"
-        echo "Cloning repository..."
+        __log_info "Local repo not cloned yet"
+        __log_info "Cloning repository..."
         git clone "${REPO_URL}" "${REPO_PATH}"
-        echo "Adding upstream..."
+        __log_info "Adding upstream..."
         git remote add upstream "${UPSTREAM_URL}"
     fi
 }
@@ -121,20 +121,20 @@ fetch_and_push_tags() {
     local -r repo_url="${1}"
     local -r tags=$(git fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
     if [ -z "${tags}" ]; then
-        echo "Origin up-to-date with upstream"
+        __log_info "Origin up-to-date with upstream"
     else 
-        echo "Origin behind upstream"
+        __log_info "Origin behind upstream"
         for tag in ${tags}; do
-            echo "Pushing ${tag}..."
+            __log_info "Pushing ${tag}..."
             git push origin ${tag}
         done
     fi
 }
 
-echo "Configuring SSH..."
+__log_info "Configuring SSH..."
 configure_ssh
 
-echo "Checking repo URL..."
+__log_info "Checking repo URL..."
 REPO_URL="$(check_repo_url ${REPO_URL})"
 
 __log_info "Checking local repo..."
@@ -143,4 +143,4 @@ fetch_or_clone_repo
 __log_info "Fetching and pushing tags..."
 fetch_and_push_tags
 
-echo "Done"
+__log_info "Done"
