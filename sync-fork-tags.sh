@@ -71,31 +71,30 @@ configure_ssh() {
 }
 
 check_repo_url() {
-    local REPO_HTTPS_URL=$(echo ${REPO_URL} | sed -En 's#.*(https://[^[:space:]]*).*#\1#p')
-    if [ -z "${REPO_HTTPS_URL}" ]; then
-        echo "Repo URL is using SSH"
+    local -r repo_url="${1}"
+    local -r repo_https_url=$(echo ${repo_url} | sed -En 's#.*(https://[^[:space:]]*).*#\1#p')
+    if [ -z "${repo_https_url}" ]; then
+        __log_info "Repo URL is using SSH"
+        echo ${repo_url}
     else
-        echo "WARNING: Repo URL is using HTTPS, attemping conversion to SSH..."
-        local USER=$(echo ${REPO_HTTPS_URL} | sed -En 's#https://github.com/([^/]*)/(.*).git#\1#p')
-        if [ -z "${USER}" ]; then
-            echo "-- ERROR:  Could not identify User."
+        __log_warning "Repo URL is using HTTPS, attemping conversion to SSH..."
+        local -r user=$(echo ${repo_https_url} | sed -En 's#https://github.com/([^/]*)/(.*).git#\1#p')
+        if [ -z "${user}" ]; then
+            __log_error "Could not identify User."
             exit 1
         fi
 
-        local REPO=$(echo ${REPO_HTTPS_URL} | sed -En 's#https://github.com/([^/]*)/(.*).git#\2#p')
-        if [ -z "${REPO}" ]; then
-            echo "-- ERROR:  Could not identify Repo."
+        local -r repo=$(echo ${repo_https_url} | sed -En 's#https://github.com/([^/]*)/(.*).git#\2#p')
+        if [ -z "${repo}" ]; then
+            __log_error "Could not identify Repo."
             exit 1
         fi
 
-        local NEW_URL="git@github.com:${USER}/${REPO}.git"
-        echo "Changing repo url from "
-        echo "  '${REPO_HTTPS_URL}'"
-        echo "      to "
-        echo "  '${NEW_URL}'"
-        echo ""
-
-        REPO_URL=${NEW_URL}
+        local -r new_url="git@github.com:${user}/${repo}.git"
+        __log_info "Changing Repo URL "
+        __log_info "Old URL: '${repo_https_url}'"
+        __log_info "New URL: '${new_url}'"
+        echo ${new_url}
     fi
 }
 
@@ -129,7 +128,7 @@ echo "Configuring SSH..."
 configure_ssh
 
 echo "Checking repo URL..."
-check_repo_url
+REPO_URL="$(check_repo_url ${REPO_URL})"
 
 echo "Fetch tags or clone repository..."
 REPO=$(echo ${REPO_URL} | sed -n 's/^.*\/\(.*\)\.git$/\1/p')
