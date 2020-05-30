@@ -100,17 +100,17 @@ check_repo_url() {
     fi
 }
 
-fetch_tags_or_clone_repo() {
-    if [ -d ${REPO_PATH} ]; then
+fetch_or_clone_repo() {
+    if [ -d "${REPO_PATH}" ]; then
         echo "Local repo exists"
         echo "Fetching repository tags..."
-        git -C ${REPO_PATH} fetch --tags --prune --prune-tags
+        git -C "${REPO_PATH}" fetch --tags --prune --prune-tags
     else 
         echo "Local repo not cloned yet"
         echo "Cloning repository..."
-        git clone ${REPO_URL} ${REPO_PATH}
+        git clone "${REPO_URL}" "${REPO_PATH}"
         echo "Adding upstream..."
-        git -C ${REPO_PATH} remote add upstream ${UPSTREAM_URL}
+        git -C "${REPO_PATH}" remote add upstream "${UPSTREAM_URL}"
     fi
 }
 
@@ -134,9 +134,8 @@ configure_ssh
 echo "Checking repo URL..."
 REPO_URL="$(check_repo_url ${REPO_URL})"
 
-echo "Fetch tags or clone repository..."
-fetch_tags_or_clone_repo
-
+__log_info "Checking local repo..."
+fetch_or_clone_repo
 
 __log_info "Fetching and pushing tags..."
 fetch_and_push_tags
