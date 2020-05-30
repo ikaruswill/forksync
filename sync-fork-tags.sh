@@ -26,6 +26,8 @@ REPO_URL=${REPO_URL:-}
 UPSTREAM_URL=${UPSTREAM_URL:-}
 REPO_ROOT='/repos'
 
+REPO=$(echo "${REPO_URL}" | sed -n 's/^.*\/\(.*\)\.git$/\1/p')
+REPO_PATH="${REPO_ROOT}/${REPO}"
 # Logging
 LOG_LEVEL=${LOG_LEVEL:-'ERROR'}
 
@@ -131,8 +133,6 @@ echo "Checking repo URL..."
 REPO_URL="$(check_repo_url ${REPO_URL})"
 
 echo "Fetch tags or clone repository..."
-REPO=$(echo ${REPO_URL} | sed -n 's/^.*\/\(.*\)\.git$/\1/p')
-REPO_PATH=${REPO_ROOT}/${REPO}
 fetch_tags_or_clone_repo
 
 echo "Fetching tags..."
