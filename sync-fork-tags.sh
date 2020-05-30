@@ -15,9 +15,10 @@
 # SSH_PRIVATE_KEY_FILE  : Path to SSH private key with push access
 
 set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # SSH variables
-KNOWN_HOSTS_FILE=${KNOWN_HOSTS_FILE:-'./known_hosts'}
+KNOWN_HOSTS_FILE=${KNOWN_HOSTS_FILE:-"${DIR}/known_hosts"}
 SSH_PRIVATE_KEY_FILE=${SSH_PRIVATE_KEY_FILE:-}
 SSH_PATH="${HOME}/.ssh"
 
