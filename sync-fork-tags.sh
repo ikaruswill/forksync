@@ -141,6 +141,6 @@ __log_info "Checking local repo..."
 fetch_or_clone_repo
 
 __log_info "Fetching and pushing tags..."
-fetch_and_push_tags
+fetch_and_push_tags "${REPO_URL}"
 
 __log_info "Done"
