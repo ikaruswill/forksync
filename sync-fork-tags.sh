@@ -26,6 +26,22 @@ REPO_URL=${REPO_URL:-}
 UPSTREAM_URL=${UPSTREAM_URL:-}
 REPO_ROOT='/repos'
 
+# Logging
+LOG_LEVEL=${LOG_LEVEL:-'ERROR'}
+
+exec 3>&1
+function __log_error() {
+    [[ "${LOG_LEVEL}" == "ERROR" ]] && echo -e "[ERROR]: $*" 1>&3
+}
+
+function __log_warning() {
+    [[ "${LOG_LEVEL}" == "WARNING" ]] && echo -e "[WARNING]: $*" 1>&3
+}
+
+function __log_info() {
+    [[ "${LOG_LEVEL}" == "INFO" ]] && echo -e "[INFO]: $*" 1>&3
+}
+
 # Check environment variables
 if [ -z "${REPO_URL}" ]; then
     echo 'Missing REPO_URL'
