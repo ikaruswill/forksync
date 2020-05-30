@@ -114,12 +114,14 @@ fetch_tags_or_clone_repo() {
     fi
 }
 
-push_tags() {
-    if [ -z "${TAGS}" ]; then
+fetch_and_push_tags() {
+    local -r repo_url="${1}"
+    local -r tags=$(git -C ${REPO_PATH} fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
+    if [ -z "${tags}" ]; then
         echo "Origin up-to-date with upstream"
     else 
         echo "Origin behind upstream"
-        for tag in ${TAGS}; do
+        for tag in ${tags}; do
             echo "Pushing ${tag}..."
             git -C ${REPO_PATH} push origin ${tag}
         done
@@ -135,9 +137,8 @@ REPO_URL="$(check_repo_url ${REPO_URL})"
 echo "Fetch tags or clone repository..."
 fetch_tags_or_clone_repo
 
-echo "Fetching tags..."
-TAGS=$(git -C ${REPO_PATH} fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
 
-push_tags
+__log_info "Fetching and pushing tags..."
+fetch_and_push_tags
 
 echo "Done"
