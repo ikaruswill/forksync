@@ -32,19 +32,21 @@ REPO_PATH="${REPO_ROOT}/${REPO}"
 alias git="git -C ${REPO_PATH}"
 
 # Logging
-LOG_LEVEL=${LOG_LEVEL:-'INFO'}
+LOG_ERROR=${LOG_ERROR:-'1'}
+LOG_WARNING=${LOG_WARNING:-'1'}
+LOG_INFO=${LOG_INFO:-'1'}
 
 exec 3>&1
-function __log_error() {
-    [[ "${LOG_LEVEL}" == "ERROR" ]] && echo -e "[ERROR]: $*" 1>&3
+__log_error() {
+    [[ "${LOG_ERROR}" == "1" ]] && echo -e "[ERROR]: $*" 1>&3
 }
 
-function __log_warning() {
-    [[ "${LOG_LEVEL}" == "WARNING" ]] && echo -e "[WARNING]: $*" 1>&3
+__log_warning() {
+    [[ "${LOG_WARNING}" == "1" ]] && echo -e "[WARNING]: $*" 1>&3
 }
 
-function __log_info() {
-    [[ "${LOG_LEVEL}" == "INFO" ]] && echo -e "[INFO]: $*" 1>&3
+__log_info() {
+    [[ "${LOG_INFO}" == "1" ]] && echo -e "[INFO]: $*" 1>&3
 }
 
 # Check environment variables
