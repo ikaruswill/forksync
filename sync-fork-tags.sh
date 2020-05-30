@@ -28,9 +28,6 @@ REPO_ROOT='/repos'
 
 REPO=$(echo "${REPO_URL}" | sed -n 's/^.*\/\(.*\)\.git$/\1/p')
 REPO_PATH="${REPO_ROOT}/${REPO}"
-
-alias git="git -C ${REPO_PATH}"
-
 # Logging
 LOG_ERROR=${LOG_ERROR:-'1'}
 LOG_WARNING=${LOG_WARNING:-'1'}
@@ -109,26 +106,26 @@ fetch_or_clone_repo() {
     if [ -d "${REPO_PATH}" ]; then
         __log_info "Local repo exists"
         __log_info "Fetching repository tags..."
-        git fetch --tags --prune --prune-tags
+        git -C "${REPO_PATH}" fetch --tags --prune --prune-tags
     else 
         __log_info "Local repo not cloned yet"
         __log_info "Cloning repository..."
         git clone "${REPO_URL}" "${REPO_PATH}"
         __log_info "Adding upstream..."
-        git remote add upstream "${UPSTREAM_URL}"
+        git -C "${REPO_PATH}" remote add upstream "${UPSTREAM_URL}"
     fi
 }
 
 fetch_and_push_tags() {
     local -r repo_url="${1}"
-    local -r tags=$(git fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
+    local -r tags=$(git -C ${REPO_PATH} fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
     if [ -z "${tags}" ]; then
         __log_info "Origin up-to-date with upstream"
     else 
         __log_info "Origin behind upstream"
         for tag in ${tags}; do
             __log_info "Pushing ${tag}..."
-            git push origin ${tag}
+            git -C ${REPO_PATH} push origin ${tag}
         done
     fi
 }
