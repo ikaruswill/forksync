@@ -13,6 +13,7 @@
 # REPO_URL              : Forked repository URL
 # UPSTREAM_URL          : Upstream repository URL
 # SSH_PRIVATE_KEY_FILE  : Path to SSH private key with push access
+# PUSH_MASTER           : Set to 'true' to sync master with upstream by rebasing
 
 set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -25,6 +26,7 @@ SSH_PATH="${HOME}/.ssh"
 # Repository variables
 REPO_URL=${REPO_URL:-}
 UPSTREAM_URL=${UPSTREAM_URL:-}
+PUSH_MASTER=${PUSH_MASTER:'false'}
 REPO_ROOT='/repos'
 
 REPO=$(echo "${REPO_URL}" | sed -n 's/^.*\/\(.*\)\.git$/\1/p')
@@ -118,7 +120,6 @@ fetch_or_clone_repo() {
 }
 
 fetch_and_push_tags() {
-    local -r repo_url="${1}"
     local -r tags=$(git -C ${REPO_PATH} fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
     if [ -z "${tags}" ]; then
         __log_info "Origin up-to-date with upstream"
@@ -128,6 +129,19 @@ fetch_and_push_tags() {
             __log_info "Pushing ${tag}..."
             git -C ${REPO_PATH} push origin ${tag}
         done
+    fi
+}
+
+fetch_and_push_master() {
+    git -C ${REPO_PATH} checkout master
+    git -C ${REPO_PATH} pull origin
+    git -C ${REPO_PATH} fetch upstream master
+    if git -C ${REPO_PATH} diff upstream/master master --exit-code > /dev/null; then
+        __log_info "origin/master behind upstream/master"
+        __log_info "Rebasing origin/master onto upstream/master..."
+        git -C ${REPO_PATH} rebase upstream/master
+    else
+        __log_info "origin/master up to date with upstream/master"
     fi
 }
 
@@ -141,6 +155,11 @@ __log_info "Checking local repo..."
 fetch_or_clone_repo
 
 __log_info "Fetching and pushing tags..."
-fetch_and_push_tags "${REPO_URL}"
+fetch_and_push_tags
+
+if [[ "${PUSH_MASTER}" == "true" ]]; then
+    __log_info "Fetching and pushing master..."
+    fetch_and_push_master
+fi
 
 __log_info "Done"
