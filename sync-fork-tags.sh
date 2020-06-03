@@ -120,7 +120,6 @@ fetch_or_clone_repo() {
 }
 
 fetch_and_push_tags() {
-    local -r repo_url="${1}"
     local -r tags=$(git -C ${REPO_PATH} fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
     if [ -z "${tags}" ]; then
         __log_info "Origin up-to-date with upstream"
@@ -156,7 +155,7 @@ __log_info "Checking local repo..."
 fetch_or_clone_repo
 
 __log_info "Fetching and pushing tags..."
-fetch_and_push_tags "${REPO_URL}"
+fetch_and_push_tags
 
 if [[ "${PUSH_MASTER}" == "true" ]]; then
     __log_info "Fetching and pushing master..."
