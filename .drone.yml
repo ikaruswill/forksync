@@ -85,6 +85,9 @@ platform:
   os: linux
   arch: arm
 
+clone:
+  depth: 1
+
 steps:
 - name: manifest
   pull: always
