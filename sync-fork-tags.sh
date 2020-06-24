@@ -29,8 +29,14 @@ UPSTREAM_URL=${UPSTREAM_URL:-}
 SYNC_MASTER=${SYNC_MASTER:'false'}
 REPO_ROOT='/repos'
 
+# Repository path handling
 REPO=$(echo "${REPO_URL}" | sed -n 's/^.*\/\(.*\)\.git$/\1/p')
 REPO_PATH="${REPO_ROOT}/${REPO}"
+# Overrride git to use REPO_PATH
+git() {
+    /usr/bin/git -C ${REPO_PATH} "$@"
+}
+
 # Logging
 LOG_ERROR=${LOG_ERROR:-'1'}
 LOG_WARNING=${LOG_WARNING:-'1'}
@@ -109,37 +115,37 @@ fetch_or_clone_repo() {
     if [ -d "${REPO_PATH}" ]; then
         __log_info "Local repo exists"
         __log_info "Fetching repository tags..."
-        git -C "${REPO_PATH}" fetch --tags --prune --prune-tags
+        git fetch --tags --prune --prune-tags
     else 
         __log_info "Local repo not cloned yet"
         __log_info "Cloning repository..."
         git clone "${REPO_URL}" "${REPO_PATH}"
         __log_info "Adding upstream..."
-        git -C "${REPO_PATH}" remote add upstream "${UPSTREAM_URL}"
+        git remote add upstream "${UPSTREAM_URL}"
     fi
 }
 
 fetch_and_push_tags() {
-    local -r tags=$(git -C ${REPO_PATH} fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
+    local -r tags=$(git fetch upstream --tags 2>&1 | sed -n 's/^.*\[new tag\].*->\s*\(.*\).*$/\1/p')
     if [ -z "${tags}" ]; then
         __log_info "Origin up-to-date with upstream"
     else 
         __log_info "Origin behind upstream"
         for tag in ${tags}; do
             __log_info "Pushing ${tag}..."
-            git -C ${REPO_PATH} push origin ${tag}
+            git push origin ${tag}
         done
     fi
 }
 
 sync_master() {
-    git -C ${REPO_PATH} checkout master
-    git -C ${REPO_PATH} pull origin
-    git -C ${REPO_PATH} fetch upstream master
-    if git -C ${REPO_PATH} diff upstream/master master --exit-code > /dev/null; then
+    git checkout master
+    git pull origin
+    git fetch upstream master
+    if git diff upstream/master master --exit-code > /dev/null; then
         __log_info "origin/master behind upstream/master"
         __log_info "Rebasing origin/master onto upstream/master..."
-        git -C ${REPO_PATH} rebase upstream/master
+        git rebase upstream/master
     else
         __log_info "origin/master up to date with upstream/master"
     fi
