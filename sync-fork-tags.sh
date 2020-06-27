@@ -119,6 +119,7 @@ fetch_or_clone_repo() {
     else 
         __log_info "Local repo not cloned yet"
         __log_info "Cloning repository..."
+        mkdir -p "${REPO_PATH}"
         git clone "${REPO_URL}" "${REPO_PATH}"
         __log_info "Adding upstream..."
         git remote add upstream "${UPSTREAM_URL}"
