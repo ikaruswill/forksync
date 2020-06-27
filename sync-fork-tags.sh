@@ -26,7 +26,7 @@ SSH_PATH="${HOME}/.ssh"
 # Repository variables
 REPO_URL=${REPO_URL:-}
 UPSTREAM_URL=${UPSTREAM_URL:-}
-SYNC_MASTER=${SYNC_MASTER:'false'}
+SYNC_MASTER=${SYNC_MASTER:-'false'}
 REPO_ROOT='/repos'
 
 # Repository path handling
