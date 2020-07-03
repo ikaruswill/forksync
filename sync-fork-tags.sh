@@ -143,12 +143,14 @@ sync_master() {
     git checkout master
     git pull origin
     git fetch upstream master
-    if git diff upstream/master master --exit-code > /dev/null; then
+    git diff upstream/master master --exit-code > /dev/null
+    local isDiff=$?
+    if [[ isDiff == 0 ]]; then
+        __log_info "origin/master up to date with upstream/master"
+    else
         __log_info "origin/master behind upstream/master"
         __log_info "Rebasing origin/master onto upstream/master..."
         git rebase upstream/master
-    else
-        __log_info "origin/master up to date with upstream/master"
     fi
 }
 
