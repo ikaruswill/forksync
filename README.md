@@ -1,29 +1,29 @@
-# sync-fork-tags
+# Forksync
 
-A simple bash script to pull upstream tags of a fork and then push them to origin.
-- To be used in a cron job (e.g. K8s CronJob) to triggering CICD pipelines in forked
-  repositories that build on 'tag' events.
+A python script to push new tags in the upstream repository to your fork.
+- Can be used in a cron job (e.g. K8s CronJob) to trigger CICD pipelines in forked
+  repositories that build on `tag` events.
 - For people who build their own versions of forked repositories yet want to remain
   as close as possible to upstream.
+
+## Features
+- Multiple repositories can be kept synchronized with the upstream defined in a single yaml configuration file
+- Repositories can be cached on disk to speed up executions by minimizing cloning and fetching
 
 ## Usage
 ```bash
 docker run --rm \
--e "REPO_URL=git@github.com:username/repo.git" \
--e "UPSTREAM_URL=git@github.com:upstream_user/repo.git" \
--e "SSH_PRIVATE_KEY_FILE=/id_rsa" \
--v path/to/ssh/privatekey:/id_rsa \
-ikaruswill/sync-fork-tags
+-v path/to/config.yaml:/etc/forksync/config.yaml \
+-v cache:/cache \
+ikaruswill/forksync
 ```
 
-## Environment variables
-```
-REPO_URL              : Forked repository URL
-UPSTREAM_URL          : Upstream repository URL
-SSH_PRIVATE_KEY_FILE  : Path to SSH private key with push access
-```
-
-## Volumes
-```
-/repos                : Repository cache (to avoid clone on every run)
-```
+## Configuration
+| Variable                | Description                              | Default      |
+|-------------------------|------------------------------------------|--------------|
+| ssh_key                 | Path to SSH private key with push access | **Required** |
+| cache_dir               | Directory to cache repositories in       | /cache       |
+| log_level                | Desired log level                        | INFO         |
+| repositories            | List of repository configurations        | **Required** |
+| repositories[].origin   | SSH URL of your fork                     | **Required** |
+| repositories[].upstream | SSH URL of the upstream repository       | **Required** |
