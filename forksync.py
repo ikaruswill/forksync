@@ -32,9 +32,17 @@ def fix_ssh_url(url):
 
 def validate_url(url):
     if url.startswith('https://'):
-        return fix_https_url(url)
+        logger.debug('Converting remote URL from HTTPS to SSH')
+        logger.debug(f'URL: {url}')
+        new_url = fix_https_url(url)
+        logger.debug(f'New URL: {new_url}')
+        return new_url
     if not url.startswith('ssh://'):
-        return fix_ssh_url(url)
+        logger.debug('Converting remote URL from HTTPS to SSH')
+        logger.debug(f'URL: {url}')
+        new_url = fix_ssh_url(url)
+        logger.debug(f'New URL: {new_url}')
+        return new_url
     return url
 
 
