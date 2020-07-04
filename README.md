@@ -23,7 +23,7 @@ ikaruswill/forksync
 |-------------------------|------------------------------------------|--------------|
 | ssh_key                 | Path to SSH private key with push access | **Required** |
 | cache_dir               | Directory to cache repositories in       | /cache       |
-| log_lvel                | Desired log level                        | INFO         |
+| log_level                | Desired log level                        | INFO         |
 | repositories            | List of repository configurations        | **Required** |
 | repositories[].origin   | SSH URL of your fork                     | **Required** |
 | repositories[].upstream | SSH URL of the upstream repository       | **Required** |
