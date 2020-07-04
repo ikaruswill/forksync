@@ -64,7 +64,7 @@ def run_repo(ssh_key, cache_dir, repo_config):
         logger.info('Repository cache miss, cloning...')
         repo = git.Repo.clone_from(repo_config['origin'], repo_path)
     except git.exc.InvalidGitRepositoryError:
-        logger.warn('Cached repository invalid, reinitializing...')
+        logger.warning('Cached repository invalid, reinitializing...')
         shutil.rmtree(repo_path)
         repo = git.Repo.clone_from(repo_config['origin'], repo_path)
 
@@ -72,7 +72,7 @@ def run_repo(ssh_key, cache_dir, repo_config):
     try:
         origin = repo.remote('origin')
     except ValueError:
-        logger.warn('Origin missing from cached repository, reinitializing...')
+        logger.warning('Origin missing from cached repository, reinitializing...')
         shutil.rmtree(repo_path)
         repo = git.Repo.clone_from(repo_config['origin'], repo_path)
         origin = repo.remote('origin')
@@ -81,7 +81,7 @@ def run_repo(ssh_key, cache_dir, repo_config):
     try:
         upstream = repo.remote('upstream')
     except ValueError:
-        logger.warn('Upstream missing, adding upstream...')
+        logger.warning('Upstream missing, adding upstream...')
         upstream = repo.create_remote('upstream', repo_config['upstream'])
 
     # Sync origin
