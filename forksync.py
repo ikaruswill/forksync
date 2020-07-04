@@ -54,6 +54,57 @@ def parse_repo(url):
     return org, repo
 
 
+def handle_fetchinfos(fetchinfos):
+    for fetchinfo in fetchinfos:
+        if fetchinfo.flags & git.FetchInfo.ERROR:
+            logger.debug('ERROR')
+        if fetchinfo.flags & git.FetchInfo.FAST_FORWARD:
+            logger.debug('FAST_FORWARD')
+        if fetchinfo.flags & git.FetchInfo.FORCED_UPDATE:
+            logger.debug('FORCED_UPDATE')
+        if fetchinfo.flags & git.FetchInfo.HEAD_UPTODATE:
+            logger.debug('HEAD_UPTODATE')
+            logger.info(f'UP TO DATE: {fetchinfo.name}')
+        if fetchinfo.flags & git.FetchInfo.NEW_HEAD:
+            logger.debug('NEW_HEAD')
+        if fetchinfo.flags & git.FetchInfo.NEW_TAG:
+            logger.debug('NEW_TAG')
+            logger.info(f'NEW TAG: {fetchinfo.name}')
+        if fetchinfo.flags & git.FetchInfo.REJECTED:
+            logger.debug('REJECTED')
+        if fetchinfo.flags & git.FetchInfo.TAG_UPDATE:
+            logger.debug('TAG_UPDATE')
+            logger.info(f'UPDATED TAG: {fetchinfo.name}')
+
+
+def handle_pushinfos(pushinfos):
+    for pushinfo in pushinfos:
+        if pushinfo.flags & git.PushInfo.DELETED:
+            logger.debug('DELETED')
+        if pushinfo.flags & git.PushInfo.ERROR:
+            logger.debug('ERROR')
+        if pushinfo.flags & git.PushInfo.FAST_FORWARD:
+            logger.debug('FAST_FORWARD')
+        if pushinfo.flags & git.PushInfo.FORCED_UPDATE:
+            logger.debug('FORCED_UPDATE')
+        if pushinfo.flags & git.PushInfo.NEW_HEAD:
+            logger.debug('NEW_HEAD')
+        if pushinfo.flags & git.PushInfo.NEW_TAG:
+            logger.debug('NEW_TAG')
+            logger.info(f'NEW TAG: {pushinfo.remote_ref.name}')
+        if pushinfo.flags & git.PushInfo.NO_MATCH:
+            logger.debug('NO_MATCH')
+        if pushinfo.flags & git.PushInfo.REJECTED:
+            logger.debug('REJECTED')
+        if pushinfo.flags & git.PushInfo.REMOTE_FAILURE:
+            logger.debug('REMOTE_FAILURE')
+        if pushinfo.flags & git.PushInfo.REMOTE_REJECTED:
+            logger.debug('REMOTE_REJECTED')
+        if pushinfo.flags & git.PushInfo.UP_TO_DATE:
+            logger.debug('UP_TO_DATE')
+            logger.info(f'UP TO DATE: {pushinfo.remote_ref.name}')
+
+
 def run_repo(cache_dir, repo_config):
     org, repo = parse_repo(repo_config['origin'])
     repo_id = os.path.join(org, repo)
@@ -92,11 +143,13 @@ def run_repo(cache_dir, repo_config):
     # Sync origin
     logger.info('Fetching latest state from origin')
     origin_fetch = origin.fetch(tags=True, prune=True, prune_tags=True)
+    handle_fetchinfos(origin_fetch)
     current_tags = repo.tags
 
     # Sync upstream
     upstream_fetch = upstream.fetch(tags=True)
     new_tags = repo.tags
+    handle_fetchinfos(upstream_fetch)
 
     # Check upstream against cache
     missing_tags = list(set(new_tags) - set(current_tags))
@@ -115,6 +168,7 @@ def run_repo(cache_dir, repo_config):
     else:
         logger.info('Origin is up-to-date with upstream')
 
+    handle_pushinfos(origin_push)
     logger.info('Done')
 
 
