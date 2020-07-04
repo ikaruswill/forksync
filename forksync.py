@@ -24,10 +24,6 @@ def setup_ssh(repo, ssh_key):
     repo.git.update_environment(GIT_SSH=f'ssh -i {ssh_key}')
 
 
-def is_cloned(repo_path):
-    return os.path.isdir(repo_path)
-
-
 def fix_https_url(url):
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
     return os.path.join(f'ssh://git@{netloc}', path)
