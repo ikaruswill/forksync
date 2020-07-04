@@ -10,7 +10,7 @@ import git
 APP_NAME = 'forksync'
 CONFIG_TEMPLATE = {
     'ssh_key': confuse.Filename(),
-    'cache_dir': confuse.Filename(),
+    'cache_dir': confuse.Filename(default='/cache'),
     'repositories': confuse.Sequence(
         {
             'origin': confuse.String(),
@@ -127,7 +127,8 @@ def main():
         help='Path to SSH private key with push access')
     parser.add_argument(
         '--cache-dir',
-        help='Directory to cache repositories in')
+        help='Directory to cache repositories in',
+        default='/cache')
 
     args = parser.parse_args()
     config = confuse.LazyConfig(APP_NAME, __name__)
