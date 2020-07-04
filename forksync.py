@@ -146,6 +146,7 @@ def run_repo(cache_dir, repo_config):
     current_tags = repo.tags
 
     # Sync upstream
+    logger.info('Fetching latest state from upstream')
     upstream_fetch = upstream.fetch(tags=True, force=True)
     new_tags = repo.tags
     handle_fetchinfos(upstream_fetch)
