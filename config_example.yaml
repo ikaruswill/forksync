@@ -1,5 +1,6 @@
 ssh_key: /etc/forksync/id_rsa
 cache_dir: /cache
+log_level: INFO
 repositories:
 - origin: git@github.com:ikaruswill/kubeyaml.git
   upstream: git@github.com:squaremo/kubeyaml.git
