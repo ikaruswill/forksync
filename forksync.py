@@ -141,12 +141,12 @@ def run_repo(cache_dir, repo_config):
 
     # Sync origin
     logger.info('Fetching latest state from origin')
-    origin_fetch = origin.fetch(tags=True, prune=True, prune_tags=True)
+    origin_fetch = origin.fetch(tags=True, prune=True, prune_tags=True, force=True)
     handle_fetchinfos(origin_fetch)
     current_tags = repo.tags
 
     # Sync upstream
-    upstream_fetch = upstream.fetch(tags=True)
+    upstream_fetch = upstream.fetch(tags=True, force=True)
     new_tags = repo.tags
     handle_fetchinfos(upstream_fetch)
 
@@ -163,7 +163,7 @@ def run_repo(cache_dir, repo_config):
         for tag_ref in tag_push_order:
             logger.info(f'Pushing {tag_ref.name}...')
             origin_push.append(
-                origin.push(f'{tag_ref.path}:{tag_ref.path}')[0])
+                origin.push(f'{tag_ref.path}:{tag_ref.path}')[0], force=True)
         handle_pushinfos(origin_push)
     else:
         logger.info('Origin is up-to-date with upstream')
