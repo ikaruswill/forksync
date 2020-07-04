@@ -173,9 +173,7 @@ def run_repo(cache_dir, repo_config):
 
 def run(ssh_key, cache_dir, log_level, repositories):
     os.environ['GIT_SSH_COMMAND'] = f'/usr/bin/ssh -o StrictHostKeyChecking=no -i {ssh_key}'
-    logging.basicConfig(
-        level=getattr(logging, log_level),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.getLogger().setLevel(getattr(logging, log_level))
 
     for repo_config in repositories:
         repo_config['origin'] = validate_url(repo_config['origin'])
@@ -208,5 +206,8 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(APP_NAME)
     main()
