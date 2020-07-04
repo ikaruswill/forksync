@@ -11,6 +11,7 @@ APP_NAME = 'forksync'
 CONFIG_TEMPLATE = {
     'ssh_key': confuse.Filename(),
     'cache_dir': confuse.Filename(default='/cache'),
+    'log_level': confuse.String(default='INFO'),
     'repositories': confuse.Sequence(
         {
             'origin': confuse.String(),
@@ -63,12 +64,12 @@ def run_repo(cache_dir, repo_config):
     # Check cache
     try:
         repo = git.Repo(repo_path)
-        logger.info('Repository cache hit')
+        logger.info('Cache hit')
     except git.exc.NoSuchPathError:
-        logger.info('Repository cache miss, cloning...')
+        logger.info('Cache miss, cloning...')
         repo = git.Repo.clone_from(repo_config['origin'], repo_path)
     except git.exc.InvalidGitRepositoryError:
-        logger.warning('Cached repository invalid, reinitializing...')
+        logger.warning('Cache invalid, reinitializing repo...')
         shutil.rmtree(repo_path)
         repo = git.Repo.clone_from(repo_config['origin'], repo_path)
 
@@ -117,8 +118,12 @@ def run_repo(cache_dir, repo_config):
     logger.info('Done')
 
 
-def run(ssh_key, cache_dir, repositories):
+def run(ssh_key, cache_dir, log_level, repositories):
     os.environ['GIT_SSH_COMMAND'] = f'/usr/bin/ssh -o StrictHostKeyChecking=no -i {ssh_key}'
+    logging.basicConfig(
+        level=getattr(logging, log_level),
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
     for repo_config in repositories:
         repo_config['origin'] = validate_url(repo_config['origin'])
         repo_config['upstream'] = validate_url(repo_config['upstream'])
@@ -137,6 +142,10 @@ def main():
         '--cache-dir',
         help='Directory to cache repositories in',
         default='/cache')
+    parser.add_argument(
+        '--log-level',
+        help='Desired log level',
+        default='INFO')
 
     args = parser.parse_args()
     config = confuse.LazyConfig(APP_NAME, __name__)
@@ -146,8 +155,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(APP_NAME)
     main()
