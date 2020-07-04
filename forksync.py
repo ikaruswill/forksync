@@ -57,52 +57,51 @@ def parse_repo(url):
 def handle_fetchinfos(fetchinfos):
     for fetchinfo in fetchinfos:
         if fetchinfo.flags & git.FetchInfo.ERROR:
-            logger.debug('ERROR')
-        if fetchinfo.flags & git.FetchInfo.FAST_FORWARD:
-            logger.debug('FAST_FORWARD')
-        if fetchinfo.flags & git.FetchInfo.FORCED_UPDATE:
-            logger.debug('FORCED_UPDATE')
-        if fetchinfo.flags & git.FetchInfo.HEAD_UPTODATE:
-            logger.debug('HEAD_UPTODATE')
-            logger.info(f'UP TO DATE: {fetchinfo.name}')
-        if fetchinfo.flags & git.FetchInfo.NEW_HEAD:
-            logger.debug('NEW_HEAD')
-        if fetchinfo.flags & git.FetchInfo.NEW_TAG:
-            logger.debug('NEW_TAG')
-            logger.info(f'NEW TAG: {fetchinfo.name}')
-        if fetchinfo.flags & git.FetchInfo.REJECTED:
-            logger.debug('REJECTED')
-        if fetchinfo.flags & git.FetchInfo.TAG_UPDATE:
-            logger.debug('TAG_UPDATE')
-            logger.info(f'UPDATED TAG: {fetchinfo.name}')
+            message = 'ERROR'
+        elif fetchinfo.flags & git.FetchInfo.FAST_FORWARD:
+            message = 'FAST FORWARD'
+        elif fetchinfo.flags & git.FetchInfo.FORCED_UPDATE:
+            message = 'FORCED UPDATE'
+        elif fetchinfo.flags & git.FetchInfo.HEAD_UPTODATE:
+            message = 'UP TO DATE'
+        elif fetchinfo.flags & git.FetchInfo.NEW_HEAD:
+            message = 'NEW_HEAD'
+        elif fetchinfo.flags & git.FetchInfo.NEW_TAG:
+            message = 'NEW TAG'
+        elif fetchinfo.flags & git.FetchInfo.REJECTED:
+            message = 'REJECTED'
+        elif fetchinfo.flags & git.FetchInfo.TAG_UPDATE:
+            message = 'TAG UPDATE'
+
+        logger.info(f'{message:<15}: \t{fetchinfo.name}')
 
 
 def handle_pushinfos(pushinfos):
     for pushinfo in pushinfos:
         if pushinfo.flags & git.PushInfo.DELETED:
-            logger.debug('DELETED')
-        if pushinfo.flags & git.PushInfo.ERROR:
-            logger.debug('ERROR')
-        if pushinfo.flags & git.PushInfo.FAST_FORWARD:
-            logger.debug('FAST_FORWARD')
-        if pushinfo.flags & git.PushInfo.FORCED_UPDATE:
-            logger.debug('FORCED_UPDATE')
-        if pushinfo.flags & git.PushInfo.NEW_HEAD:
-            logger.debug('NEW_HEAD')
-        if pushinfo.flags & git.PushInfo.NEW_TAG:
-            logger.debug('NEW_TAG')
-            logger.info(f'NEW TAG: {pushinfo.remote_ref.name}')
-        if pushinfo.flags & git.PushInfo.NO_MATCH:
-            logger.debug('NO_MATCH')
-        if pushinfo.flags & git.PushInfo.REJECTED:
-            logger.debug('REJECTED')
-        if pushinfo.flags & git.PushInfo.REMOTE_FAILURE:
-            logger.debug('REMOTE_FAILURE')
-        if pushinfo.flags & git.PushInfo.REMOTE_REJECTED:
-            logger.debug('REMOTE_REJECTED')
-        if pushinfo.flags & git.PushInfo.UP_TO_DATE:
-            logger.debug('UP_TO_DATE')
-            logger.info(f'UP TO DATE: {pushinfo.remote_ref.name}')
+            message = 'DELETED'
+        elif pushinfo.flags & git.PushInfo.ERROR:
+            message = 'ERROR'
+        elif pushinfo.flags & git.PushInfo.FAST_FORWARD:
+            message = 'FAST FORWARD'
+        elif pushinfo.flags & git.PushInfo.FORCED_UPDATE:
+            message = 'FORCED UPDATE'
+        elif pushinfo.flags & git.PushInfo.NEW_HEAD:
+            message = 'NEW HEAD'
+        elif pushinfo.flags & git.PushInfo.NEW_TAG:
+            message = 'NEW TAG'
+        elif pushinfo.flags & git.PushInfo.NO_MATCH:
+            message = 'NO MATCH'
+        elif pushinfo.flags & git.PushInfo.REJECTED:
+            message = 'REJECTED'
+        elif pushinfo.flags & git.PushInfo.REMOTE_FAILURE:
+            message = 'REMOTE FAILURE'
+        elif pushinfo.flags & git.PushInfo.REMOTE_REJECTED:
+            message = 'REMOTE REJECTED'
+        elif pushinfo.flags & git.PushInfo.UP_TO_DATE:
+            message = 'UP TO DATE'
+
+        logger.info(f'{message:<15}: \t{pushinfo.remote_ref.name}')
 
 
 def run_repo(cache_dir, repo_config):
@@ -165,10 +164,10 @@ def run_repo(cache_dir, repo_config):
             logger.info(f'Pushing {tag_ref.name}...')
             origin_push.append(
                 origin.push(f'{tag_ref.path}:{tag_ref.path}')[0])
+        handle_pushinfos(origin_push)
     else:
         logger.info('Origin is up-to-date with upstream')
 
-    handle_pushinfos(origin_push)
     logger.info('Done')
 
 
