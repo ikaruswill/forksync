@@ -1,0 +1,7 @@
+ssh_key: /etc/forksync/id_rsa
+cache_dir: /cache
+repositories:
+- origin: git@github.com:ikaruswill/kubeyaml.git
+  upstream: git@github.com:squaremo/kubeyaml.git
+- origin: git@github.com:ikaruswill/kubeval.git
+  upstream: git@github.com:instrumenta/kubeval.git
