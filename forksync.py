@@ -20,10 +20,6 @@ CONFIG_TEMPLATE = {
 }
 
 
-def setup_ssh(repo, ssh_key):
-    repo.git.update_environment(GIT_SSH=f'ssh -i {ssh_key}')
-
-
 def fix_https_url(url):
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
     return os.path.join(f'ssh://git@{netloc}', path)
@@ -49,7 +45,7 @@ def parse_repo(url):
     return org, repo
 
 
-def run_repo(ssh_key, cache_dir, repo_config):
+def run_repo(cache_dir, repo_config):
     org, repo = parse_repo(repo_config['origin'])
     repo_id = os.path.join(org, repo)
     repo_path = os.path.join(cache_dir, repo)
@@ -114,10 +110,11 @@ def run_repo(ssh_key, cache_dir, repo_config):
 
 
 def run(ssh_key, cache_dir, repositories):
+    os.environ['GIT_SSH_COMMAND'] = f'/usr/bin/ssh -o StrictHostKeyChecking=no -i {ssh_key}'
     for repo_config in repositories:
         repo_config['origin'] = validate_url(repo_config['origin'])
         repo_config['upstream'] = validate_url(repo_config['upstream'])
-        run_repo(ssh_key, cache_dir, repo_config)
+        run_repo(cache_dir, repo_config)
     logger.info('forksync complete')
 
 
