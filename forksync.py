@@ -121,40 +121,43 @@ def handle_pushinfos(pushinfos):
         logger.info(f'{message:<15}: \t{pushinfo.remote_ref.name}')
 
 
-def run_repo(cache_dir, repo_config):
-    org, repo = parse_repo(repo_config['origin'])
-    repo_id = os.path.join(org, repo)
-    repo_path = os.path.join(cache_dir, repo)
-
-    logger.info(f'Processing repository: {repo_id}')
-
-    # Check cache
+def get_or_create_repo(repo_path, url):
     try:
         repo = git.Repo(repo_path)
         logger.info('Cache hit')
     except git.exc.NoSuchPathError:
         logger.info('Cache miss, cloning...')
-        repo = git.Repo.clone_from(repo_config['origin'], repo_path)
+        repo = git.Repo.clone_from(url, repo_path)
     except git.exc.InvalidGitRepositoryError:
-        logger.warning('Cache invalid, reinitializing repo...')
+        logger.warning('Cache invalid, reinitializing...')
         shutil.rmtree(repo_path)
-        repo = git.Repo.clone_from(repo_config['origin'], repo_path)
+        repo = git.Repo.clone_from(url, repo_path)
+    return repo
 
-    # Check origin
-    try:
-        origin = repo.remote('origin')
-    except ValueError:
-        logger.warning('Origin missing from cached repository, reinitializing...')
-        shutil.rmtree(repo_path)
-        repo = git.Repo.clone_from(repo_config['origin'], repo_path)
-        origin = repo.remote('origin')
 
-    # Check upstream
+def get_or_create_remote(name, url):
     try:
-        upstream = repo.remote('upstream')
+        remote = repo.remote(name)
     except ValueError:
-        logger.warning('Upstream missing, adding upstream...')
-        upstream = repo.create_remote('upstream', repo_config['upstream'])
+        logger.warning(f'Remote \'{name}\' missing, creating...')
+        remote = repo.create_remote(name, url)
+    return remote
+
+
+def run_repo(cache_dir, repo_config):
+    org, repo = parse_repo(repo_config['origin'])
+    repo_path = os.path.join(cache_dir, repo)
+
+    logger.info(f'Processing repository: {os.path.join(org, repo)}')
+
+    # Init cache
+    repo = get_or_create_repo(repo_path, repo_config['origin'])
+
+    # Init origin
+    origin = get_or_create_remote('origin', repo_config['origin'])
+
+    # Init upstream
+    upstream = get_or_create_remote('upstream', repo_config['upstream'])
 
     # Sync origin
     logger.info('Fetching latest state from origin')
