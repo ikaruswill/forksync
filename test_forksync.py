@@ -59,6 +59,73 @@ def test_parse_repo():
     assert parse_repo(url) == target
 
 
+def test_validate_url_https():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'https://github.com/ikaruswill/forksync.git'
+    assert validate_url(url) == target
+
+
+def test_validate_url_http():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'http://github.com/ikaruswill/forksync.git'
+    assert validate_url(url) == target
+
+
+def test_validate_url_https_trailing_slash():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'https://github.com/ikaruswill/forksync.git/'
+    assert validate_url(url) == target
+
+
+def test_validate_url_https_no_git():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'https://github.com/ikaruswill/forksync'
+    assert validate_url(url) == target
+
+
+def test_validate_url_https_no_path():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'https://github.com'
+    pytest.raises(ValueError, validate_url, url)
+
+
+def test_validate_url_https_one_path_element():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'https://github.com/ikaruswill'
+    pytest.raises(ValueError, validate_url, url)
+
+
+def test_validate_url_ssh():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'git@github.com:ikaruswill/forksync.git'
+    assert validate_url(url) == target
+
+
+def test_validate_url_ssh_trailing_slash():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'git@github.com:ikaruswill/forksync.git/'
+    assert validate_url(url) == target
+
+
+def test_validate_url_ssh_no_git():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'git@github.com:ikaruswill/forksync'
+    assert validate_url(url) == target
+
+
+def test_validate_url_ssh_no_path():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'git@github.com'
+    pytest.raises(ValueError, validate_url, url)
+    pytest.raises(ValueError, validate_url, url + ':')
+
+
+def test_validate_url_ssh_one_path_element():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'git@github.com:ikaruswill'
+    pytest.raises(ValueError, validate_url, url)
+
+
 def test_get_or_create_repo_existing(tmpdir, caplog):
     remote_url = tmpdir.join('remote')
     remote_repo = git.Repo.init(tmpdir.join('remote'))
