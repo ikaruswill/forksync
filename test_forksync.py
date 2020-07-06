@@ -1,5 +1,5 @@
 import pytest
-from forksync import fix_https_url, fix_ssh_url
+from forksync import fix_https_url, fix_ssh_url, parse_repo
 
 
 def test_fix_https_url_github():
@@ -31,4 +31,8 @@ def test_fix_ssh_url_github():
     pytest.raises(ValueError, fix_ssh_url, url_ssh_nopath_nocolon)
     pytest.raises(ValueError, fix_ssh_url, url_ssh_one_element_path)
 
+def test_parse_repo():
+    target = ('ikaruswill', 'forksync')
+    url = 'ssh://git@github.com/ikaruswill/forksync.git'
+    assert parse_repo(url) == target
 
