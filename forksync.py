@@ -139,7 +139,7 @@ def get_or_create_repo(repo_path, url):
     return repo
 
 
-def get_or_create_remote(name, url):
+def get_or_create_remote(repo, name, url):
     try:
         remote = repo.remote(name)
     except ValueError:
@@ -158,10 +158,10 @@ def run_repo(cache_dir, repo_config):
     repo = get_or_create_repo(repo_path, repo_config['origin'])
 
     # Init origin
-    origin = get_or_create_remote('origin', repo_config['origin'])
+    origin = get_or_create_remote(repo, 'origin', repo_config['origin'])
 
     # Init upstream
-    upstream = get_or_create_remote('upstream', repo_config['upstream'])
+    upstream = get_or_create_remote(repo, 'upstream', repo_config['upstream'])
 
     # Sync origin
     logger.info('Fetching latest state from origin')
