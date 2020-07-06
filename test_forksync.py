@@ -9,34 +9,64 @@ from forksync import (fix_https_url, fix_ssh_url, get_or_create_remote,
                       get_or_create_repo, parse_repo)
 
 
-def test_fix_https_url_github():
+def test_fix_https_url_github_http():
     target = 'ssh://git@github.com/ikaruswill/forksync.git'
-    url_http = 'https://github.com/ikaruswill/forksync.git'
-    url_https = 'https://github.com/ikaruswill/forksync.git'
-    url_https_nogitsuffix = 'https://github.com/ikaruswill/forksync'
-    url_https_nopath = 'https://github.com'
-    url_https_one_element_path = 'https://github.com/ikaruswill'
-
-    assert fix_https_url(url_http) == target
-    assert fix_https_url(url_https) == target
-    assert fix_https_url(url_https_nogitsuffix) == target
-    pytest.raises(ValueError, fix_https_url, url_https_nopath)
-    pytest.raises(ValueError, fix_https_url, url_https_one_element_path)
+    url = 'http://github.com/ikaruswill/forksync.git'
+    assert fix_https_url(url) == target
 
 
-def test_fix_ssh_url_github():
+def test_fix_https_url_github_https():
     target = 'ssh://git@github.com/ikaruswill/forksync.git'
-    url_ssh = 'git@github.com:ikaruswill/forksync.git'
-    url_ssh_nogitsuffix = 'git@github.com:ikaruswill/forksync'
-    url_ssh_nopath = 'git@github.com:'
-    url_ssh_nopath_nocolon = 'git@github.com'
-    url_ssh_one_element_path = 'git@github.com:ikaruswill'
+    url = 'https://github.com/ikaruswill/forksync.git'
+    assert fix_https_url(url) == target
 
-    assert fix_ssh_url(url_ssh) == target
-    assert fix_ssh_url(url_ssh_nogitsuffix) == target
-    pytest.raises(ValueError, fix_ssh_url, url_ssh_nopath)
-    pytest.raises(ValueError, fix_ssh_url, url_ssh_nopath_nocolon)
-    pytest.raises(ValueError, fix_ssh_url, url_ssh_one_element_path)
+
+def test_fix_https_url_github_no_git_suffix():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'https://github.com/ikaruswill/forksync'
+    assert fix_https_url(url) == target
+
+
+def test_fix_https_url_github_no_path():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'https://github.com'
+    pytest.raises(ValueError, fix_https_url, url)
+
+
+def test_fix_https_url_github_one_element_path():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'https://github.com/ikaruswill'
+    pytest.raises(ValueError, fix_https_url, url)
+
+
+def test_fix_ssh_url_github_ssh():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'git@github.com:ikaruswill/forksync.git'
+    assert fix_ssh_url(url) == target
+
+
+def test_fix_ssh_url_github_no_git_suffix():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'git@github.com:ikaruswill/forksync'
+    assert fix_ssh_url(url) == target
+
+
+def test_fix_ssh_url_github_no_path():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'git@github.com:'
+    pytest.raises(ValueError, fix_ssh_url, url)
+
+
+def test_fix_ssh_url_github_no_colon():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'git@github.com'
+    pytest.raises(ValueError, fix_ssh_url, url)
+
+
+def test_fix_ssh_url_github_one_element_path():
+    target = 'ssh://git@github.com/ikaruswill/forksync.git'
+    url = 'git@github.com:ikaruswill'
+    pytest.raises(ValueError, fix_ssh_url, url)
 
 
 def test_parse_repo():
@@ -90,8 +120,8 @@ def test_get_or_create_remote_existing(tmpdir, caplog):
     repo_path = cache_path.join('repo')
     repo = git.Repo.clone_from(remote_url, repo_path)
     target = repo.remote('origin')
-
     assert get_or_create_remote(repo, 'origin', remote_url) == target
+
 
 def test_get_or_create_remote_missing(tmpdir, caplog):
     remote_url = tmpdir.join('remote')
