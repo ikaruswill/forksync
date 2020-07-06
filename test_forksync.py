@@ -1,5 +1,12 @@
+import logging
+import os
+import shutil
+
+import git
 import pytest
-from forksync import fix_https_url, fix_ssh_url, parse_repo
+
+from forksync import (fix_https_url, fix_ssh_url, get_or_create_remote,
+                      get_or_create_repo, parse_repo)
 
 
 def test_fix_https_url_github():
@@ -37,3 +44,61 @@ def test_parse_repo():
     url = 'ssh://git@github.com/ikaruswill/forksync.git'
     assert parse_repo(url) == target
 
+
+def test_get_or_create_repo_existing(tmpdir, caplog):
+    remote_url = tmpdir.join('remote')
+    remote_repo = git.Repo.init(tmpdir.join('remote'))
+    cache_path = tmpdir.join('cache')
+    repo_path = cache_path.join('repo')
+    target = git.Repo.init(repo_path)
+    with caplog.at_level(logging.INFO):
+        assert get_or_create_repo(repo_path, remote_url) == target
+        assert 'hit' in caplog.text
+
+
+def test_get_or_create_repo_missing(tmpdir, caplog):
+    remote_url = tmpdir.join('remote')
+    remote_repo = git.Repo.init(tmpdir.join('remote'))
+    cache_path = tmpdir.join('cache')
+    repo_path = cache_path.join('repo')
+    target = git.Repo.init(repo_path)
+    shutil.rmtree(repo_path)
+
+    with caplog.at_level(logging.INFO):
+        assert get_or_create_repo(repo_path, remote_url) == target
+        assert 'miss' in caplog.text
+
+
+def test_get_or_create_repo_invalid(tmpdir, caplog):
+    remote_url = tmpdir.join('remote')
+    remote_repo = git.Repo.init(tmpdir.join('remote'))
+    cache_path = tmpdir.join('cache')
+    repo_path = cache_path.join('repo')
+    target = git.Repo.init(repo_path)
+    shutil.rmtree(repo_path)
+    os.mkdir(repo_path)
+
+    with caplog.at_level(logging.INFO):
+        assert get_or_create_repo(repo_path, remote_url) == target
+        assert 'invalid' in caplog.text
+
+
+def test_get_or_create_remote_existing(tmpdir, caplog):
+    remote_url = tmpdir.join('remote')
+    remote_repo = git.Repo.init(tmpdir.join('remote'))
+    cache_path = tmpdir.join('cache')
+    repo_path = cache_path.join('repo')
+    repo = git.Repo.clone_from(remote_url, repo_path)
+    target = repo.remote('origin')
+
+    assert get_or_create_remote(repo, 'origin', remote_url) == target
+
+def test_get_or_create_remote_missing(tmpdir, caplog):
+    remote_url = tmpdir.join('remote')
+    repo_path = tmpdir.join('repo')
+    target = git.Repo.init(repo_path).create_remote('upstream', remote_url)
+    shutil.rmtree(repo_path)
+    repo = git.Repo.init(repo_path)
+
+    with caplog.at_level(logging.INFO):
+        assert get_or_create_remote(repo, 'upstream', remote_url) == target
