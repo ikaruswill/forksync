@@ -6,7 +6,7 @@ import git
 import pytest
 
 from forksync import (fix_https_url, fix_ssh_url, get_or_create_remote,
-                      get_or_create_repo, parse_repo)
+                      get_or_create_repo, parse_repo, validate_url)
 
 
 def test_fix_https_url_github_http():
@@ -21,21 +21,15 @@ def test_fix_https_url_github_https():
     assert fix_https_url(url) == target
 
 
-def test_fix_https_url_github_no_git_suffix():
-    target = 'ssh://git@github.com/ikaruswill/forksync.git'
-    url = 'https://github.com/ikaruswill/forksync'
-    assert fix_https_url(url) == target
-
-
 def test_fix_https_url_github_no_path():
     target = 'ssh://git@github.com/ikaruswill/forksync.git'
-    url = 'https://github.com'
+    url = 'https://github.com.git'
     pytest.raises(ValueError, fix_https_url, url)
 
 
 def test_fix_https_url_github_one_element_path():
     target = 'ssh://git@github.com/ikaruswill/forksync.git'
-    url = 'https://github.com/ikaruswill'
+    url = 'https://github.com/ikaruswill.git'
     pytest.raises(ValueError, fix_https_url, url)
 
 
@@ -45,25 +39,15 @@ def test_fix_ssh_url_github_ssh():
     assert fix_ssh_url(url) == target
 
 
-def test_fix_ssh_url_github_no_git_suffix():
-    target = 'ssh://git@github.com/ikaruswill/forksync.git'
-    url = 'git@github.com:ikaruswill/forksync'
-    assert fix_ssh_url(url) == target
-
-
 def test_fix_ssh_url_github_no_path():
     target = 'ssh://git@github.com/ikaruswill/forksync.git'
-    url = 'git@github.com:'
-    pytest.raises(ValueError, fix_ssh_url, url)
-
-
-def test_fix_ssh_url_github_no_colon():
-    target = 'ssh://git@github.com/ikaruswill/forksync.git'
     url = 'git@github.com'
+    url_with_colon = url + ':'
     pytest.raises(ValueError, fix_ssh_url, url)
+    pytest.raises(ValueError, fix_ssh_url, url_with_colon)
 
 
-def test_fix_ssh_url_github_one_element_path():
+def test_fix_ssh_url_github_one_path_element():
     target = 'ssh://git@github.com/ikaruswill/forksync.git'
     url = 'git@github.com:ikaruswill'
     pytest.raises(ValueError, fix_ssh_url, url)
