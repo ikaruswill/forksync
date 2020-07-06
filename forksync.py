@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 import shutil
-import urllib
+import urllib.parse
 
 import confuse
 import git
@@ -19,20 +19,45 @@ CONFIG_TEMPLATE = {
         }
     )
 }
+logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(APP_NAME)
 
 
 def fix_https_url(url):
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
-    return os.path.join(f'ssh://git@{netloc}', path)
+    scheme = 'ssh'
+    netloc = 'git@' + netloc
+
+    if not path:
+        raise ValueError(f'Invalid git remote URL: No path present in URL \'{url}\'')
+    if len(path.strip('/').split('/')) < 2:
+        raise ValueError(f'Invalid git remote URL: 2 path elements expected, got {path.strip("/").split("/")} - \'{url}\'')
+    return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
 
 def fix_ssh_url(url):
-    host, path = url.split(':')
-    return os.path.join('ssh://', host, path)
+    scheme = 'ssh'
+    try:
+        netloc, path = url.split(':')
+    except ValueError:
+        raise ValueError(f'Invalid git remote URL: No path present in URL \'{url}\'')
+    if len(path.strip('/').split('/')) < 2:
+        raise ValueError(f'Invalid git remote URL: 2 path elements expected, got {path.strip("/").split("/")} \'{url}\'')
+    return urllib.parse.urlunsplit((scheme, netloc, path, '', ''))
 
 
 def validate_url(url):
-    if url.startswith('https://'):
+    if url.endswith('/'):
+        logger.warning(f'URL has trailing slash \'{url}\'')
+        logger.info('Stripping trailing slash...')
+        url = url.rstrip('/')
+    if not url.endswith('.git'):
+        logger.warning(f'URL does not end with .git, \'{url}\'')
+        logger.info('Adding .git suffix...')
+        url += '.git'
+    if url.startswith('https://') or url.startswith('http://'):
         logger.debug('Converting remote URL from HTTPS to SSH')
         logger.debug(f'URL: {url}')
         new_url = fix_https_url(url)
@@ -104,40 +129,43 @@ def handle_pushinfos(pushinfos):
         logger.info(f'{message:<15}: \t{pushinfo.remote_ref.name}')
 
 
-def run_repo(cache_dir, repo_config):
-    org, repo = parse_repo(repo_config['origin'])
-    repo_id = os.path.join(org, repo)
-    repo_path = os.path.join(cache_dir, repo)
-
-    logger.info(f'Processing repository: {repo_id}')
-
-    # Check cache
+def get_or_create_repo(repo_path, url):
     try:
         repo = git.Repo(repo_path)
         logger.info('Cache hit')
     except git.exc.NoSuchPathError:
         logger.info('Cache miss, cloning...')
-        repo = git.Repo.clone_from(repo_config['origin'], repo_path)
+        repo = git.Repo.clone_from(url, repo_path)
     except git.exc.InvalidGitRepositoryError:
-        logger.warning('Cache invalid, reinitializing repo...')
+        logger.warning('Cache invalid, reinitializing...')
         shutil.rmtree(repo_path)
-        repo = git.Repo.clone_from(repo_config['origin'], repo_path)
+        repo = git.Repo.clone_from(url, repo_path)
+    return repo
 
-    # Check origin
-    try:
-        origin = repo.remote('origin')
-    except ValueError:
-        logger.warning('Origin missing from cached repository, reinitializing...')
-        shutil.rmtree(repo_path)
-        repo = git.Repo.clone_from(repo_config['origin'], repo_path)
-        origin = repo.remote('origin')
 
-    # Check upstream
+def get_or_create_remote(repo, name, url):
     try:
-        upstream = repo.remote('upstream')
+        remote = repo.remote(name)
     except ValueError:
-        logger.warning('Upstream missing, adding upstream...')
-        upstream = repo.create_remote('upstream', repo_config['upstream'])
+        logger.warning(f'Remote \'{name}\' missing, creating...')
+        remote = repo.create_remote(name, url)
+    return remote
+
+
+def run_repo(cache_dir, repo_config):
+    org, repo = parse_repo(repo_config['origin'])
+    repo_path = os.path.join(cache_dir, repo)
+
+    logger.info(f'Processing repository: {os.path.join(org, repo)}')
+
+    # Init cache
+    repo = get_or_create_repo(repo_path, repo_config['origin'])
+
+    # Init origin
+    origin = get_or_create_remote(repo, 'origin', repo_config['origin'])
+
+    # Init upstream
+    upstream = get_or_create_remote(repo, 'upstream', repo_config['upstream'])
 
     # Sync origin
     logger.info('Fetching latest state from origin')
@@ -207,8 +235,4 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger(APP_NAME)
     main()
