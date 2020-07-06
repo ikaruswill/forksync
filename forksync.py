@@ -31,9 +31,9 @@ def fix_https_url(url):
     netloc = 'git@' + netloc
 
     if not path:
-        raise ValueError(f'Invalid git remote URL: No path present in URL - {url}')
+        raise ValueError(f'Invalid git remote URL: No path present in URL \'{url}\'')
     if len(path.strip('/').split('/')) < 2:
-        raise ValueError(f'Invalid git remote URL: 2 path elements expected, got {path.strip("/").split("/")} - {url}')
+        raise ValueError(f'Invalid git remote URL: 2 path elements expected, got {path.strip("/").split("/")} - \'{url}\'')
     if not path.endswith('.git'):
         path += '.git' 
     return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
@@ -44,9 +44,9 @@ def fix_ssh_url(url):
     try:
         netloc, path = url.split(':')
     except ValueError:
-        raise ValueError(f'Invalid git remote URL: No path present in URL - {url}')
+        raise ValueError(f'Invalid git remote URL: No path present in URL \'{url}\'')
     if len(path.strip('/').split('/')) < 2:
-        raise ValueError(f'Invalid git remote URL: 2 path elements expected, got {path.strip("/").split("/")} - {url}')
+        raise ValueError(f'Invalid git remote URL: 2 path elements expected, got {path.strip("/").split("/")} \'{url}\'')
     if not path.endswith('.git'):
         path += '.git' 
     return urllib.parse.urlunsplit((scheme, netloc, path, '', ''))
