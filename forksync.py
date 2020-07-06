@@ -23,12 +23,29 @@ CONFIG_TEMPLATE = {
 
 def fix_https_url(url):
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
-    return os.path.join(f'ssh://git@{netloc}', path)
+    scheme = 'ssh'
+    netloc = 'git@' + netloc
+
+    if not path:
+        raise ValueError(f'Invalid git remote URL: No path present in URL - {url}')
+    if len(path.strip('/').split('/')) < 2:
+        raise ValueError(f'Invalid git remote URL: 2 path elements expected, got {path.strip("/").split("/")} - {url}')
+    if not path.endswith('.git'):
+        path += '.git' 
+    return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
 
 def fix_ssh_url(url):
-    host, path = url.split(':')
-    return os.path.join('ssh://', host, path)
+    scheme = 'ssh'
+    try:
+        netloc, path = url.split(':')
+    except ValueError:
+        raise ValueError(f'Invalid git remote URL: No path present in URL - {url}')
+    if len(path.strip('/').split('/')) < 2:
+        raise ValueError(f'Invalid git remote URL: 2 path elements expected, got {path.strip("/").split("/")} - {url}')
+    if not path.endswith('.git'):
+        path += '.git' 
+    return urllib.parse.urlunsplit((scheme, netloc, path, '', ''))
 
 
 def validate_url(url):
