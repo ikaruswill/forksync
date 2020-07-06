@@ -1,3 +1,33 @@
+---
+kind: pipeline
+name: test
+type: kubernetes
+
+platform:
+  os: linux
+  arch: arm
+
+clone:
+  depth: 1
+
+steps:
+- name: test
+  image: python:3.8.2-alpine3.11
+  resources:
+    requests:
+      cpu: 500
+      memory: 100MiB
+    limits:
+      cpu: 500
+      memory: 100MiB
+  commands:
+  - pip install pytest
+  - apk add git
+  - pip install -r requirements.txt
+  - py.test
+
+---
+
 kind: pipeline
 name: linux-arm
 type: kubernetes
@@ -29,12 +59,17 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
+
 node_selector:
   kubernetes.io/arch: arm
+
 trigger:
   ref:
   - refs/heads/master
   - refs/tags/*
+
+depends_on:
+- test
 
 ---
 kind: pipeline
@@ -68,6 +103,7 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
+
 node_selector:
   kubernetes.io/arch: arm64
 
@@ -75,6 +111,9 @@ trigger:
   ref:
   - refs/heads/master
   - refs/tags/*
+
+depends_on:
+- test
 
 ---
 kind: pipeline
