@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 import shutil
-import urllib
+import urllib.parse
 
 import confuse
 import git
