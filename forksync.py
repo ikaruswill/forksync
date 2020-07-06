@@ -34,8 +34,6 @@ def fix_https_url(url):
         raise ValueError(f'Invalid git remote URL: No path present in URL \'{url}\'')
     if len(path.strip('/').split('/')) < 2:
         raise ValueError(f'Invalid git remote URL: 2 path elements expected, got {path.strip("/").split("/")} - \'{url}\'')
-    if not path.endswith('.git'):
-        path += '.git' 
     return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
 
@@ -47,13 +45,19 @@ def fix_ssh_url(url):
         raise ValueError(f'Invalid git remote URL: No path present in URL \'{url}\'')
     if len(path.strip('/').split('/')) < 2:
         raise ValueError(f'Invalid git remote URL: 2 path elements expected, got {path.strip("/").split("/")} \'{url}\'')
-    if not path.endswith('.git'):
-        path += '.git' 
     return urllib.parse.urlunsplit((scheme, netloc, path, '', ''))
 
 
 def validate_url(url):
-    if url.startswith('https://'):
+    if url.endswith('/'):
+        logger.warning(f'URL has trailing slash \'{url}\'')
+        logger.info('Stripping trailing slash...')
+        url = url.rstrip('/')
+    if not url.endswith('.git'):
+        logger.warning(f'URL does not end with .git, \'{url}\'')
+        logger.info('Adding .git suffix...')
+        url += '.git'
+    if url.startswith('https://') or url.startswith('http://'):
         logger.debug('Converting remote URL from HTTPS to SSH')
         logger.debug(f'URL: {url}')
         new_url = fix_https_url(url)
