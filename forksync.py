@@ -210,6 +210,10 @@ def run_repo(cache_dir, repo_config):
     else:
         logger.info('Origin is up-to-date with upstream')
 
+    # Sync branches
+    logger.info('Syncing branches')
+    for branch in repo_config['branches']:
+        sync_branch(repo, branch)
     logger.info('Done')
 
 
