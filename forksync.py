@@ -212,8 +212,11 @@ def run_repo(cache_dir, repo_config):
 
     # Sync branches
     logger.info('Syncing branches')
+    active_branch_name = repo.active_branch.name
     for branch in repo_config['branches']:
         sync_branch(repo, branch)
+    repo.git.checkout(active_branch_name)
+
     logger.info('Done')
 
 
