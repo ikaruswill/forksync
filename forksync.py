@@ -15,7 +15,8 @@ CONFIG_TEMPLATE = {
     'repositories': confuse.Sequence(
         {
             'origin': confuse.String(),
-            'upstream': confuse.String()
+            'upstream': confuse.String(),
+            'branches': confuse.StrSeq()
         }
     )
 }
