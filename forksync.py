@@ -192,7 +192,7 @@ def run_repo(cache_dir, repo_config):
         for tag_ref in tag_push_order:
             logger.info(f'Pushing {tag_ref.name}...')
             origin_push.append(
-                origin.push(f'{tag_ref.path}:{tag_ref.path}')[0], force=True)
+                origin.push(f'{tag_ref.path}:{tag_ref.path}', force=True)[0])
         handle_pushinfos(origin_push)
     else:
         logger.info('Origin is up-to-date with upstream')
