@@ -4,5 +4,7 @@ log_level: INFO
 repositories:
 - origin: git@github.com:ikaruswill/kubeyaml.git
   upstream: git@github.com:squaremo/kubeyaml.git
+  branches:
+  - master
 - origin: git@github.com:ikaruswill/kubeval.git
   upstream: git@github.com:instrumenta/kubeval.git

@@ -15,7 +15,8 @@ CONFIG_TEMPLATE = {
     'repositories': confuse.Sequence(
         {
             'origin': confuse.String(),
-            'upstream': confuse.String()
+            'upstream': confuse.String(),
+            'branches': confuse.StrSeq()
         }
     )
 }
@@ -152,6 +153,18 @@ def get_or_create_remote(repo, name, url):
     return remote
 
 
+def sync_branch(repo, branch):
+    logger.info(f'Syncing origin/{branch} with upstream/{branch}')
+    try:
+        repo.git.checkout(f'origin/{branch}')
+        repo.git.merge(f'upstream/{branch}', '--ff-only')
+    except git.exc.GitCommandError as e:
+        logger.error(f'''Sync failed for origin/{branch} with upstream/{branch}. Skipping...
+        Command: {" ".join(e.command)}
+        Stdout: {e.stdout.strip().lstrip("stdout: ")}
+        Stderr: {e.stderr.strip().lstrip("stderr: ")}''')
+
+
 def run_repo(cache_dir, repo_config):
     org, repo = parse_repo(repo_config['origin'])
     repo_path = os.path.join(cache_dir, repo)
@@ -196,6 +209,13 @@ def run_repo(cache_dir, repo_config):
         handle_pushinfos(origin_push)
     else:
         logger.info('Origin is up-to-date with upstream')
+
+    # Sync branches
+    logger.info('Syncing branches')
+    active_branch_name = repo.active_branch.name
+    for branch in repo_config['branches']:
+        sync_branch(repo, branch)
+    repo.git.checkout(active_branch_name)
 
     logger.info('Done')
 
